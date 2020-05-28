@@ -32,6 +32,8 @@ namespace Practical
             services.AddDbContext<AppContext>(options => options.UseNpgsql(sqlConnectionString));
 
             services.AddScoped<IDataAccessProvider, DataAccessProvider>();
+
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +47,11 @@ namespace Practical
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSignalR(route =>
+            {
+                route.MapHub<MessageHub>("/message");
+            });
 
             app.UseEndpoints(endpoints =>
             {

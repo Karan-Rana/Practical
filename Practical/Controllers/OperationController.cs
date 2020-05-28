@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Practical.Model;
 
 namespace Practical.Controllers
@@ -12,10 +13,12 @@ namespace Practical.Controllers
     public class OperationController : Controller
     {
         private readonly IDataAccessProvider _dataAccessProvider;
+        private readonly IHubContext<MessageHub> _messageHub;
 
-        public OperationController(IDataAccessProvider dataAccessProvider)
+        public OperationController(IDataAccessProvider dataAccessProvider, IHubContext<MessageHub> messageHub)
         {
             _dataAccessProvider = dataAccessProvider;
+            _messageHub = messageHub;
         }
 
         public IActionResult Index()
@@ -30,6 +33,7 @@ namespace Practical.Controllers
             if(ModelState.IsValid)
             {
                 _dataAccessProvider.InsertEmployee(employee);
+                _messageHub.Clients.All.SendAsync("BroadcastMessage", "employee added.");
                 return Ok();
             }
             return BadRequest();
